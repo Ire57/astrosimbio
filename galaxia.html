@@ -1,0 +1,2330 @@
+
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missió Margulis: Navegació Galàctica</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-blue: #0a0a2a;
+            --deep-purple: #3a1078;
+            --bright-purple: #6a3de8;
+            --neon-green: #42f5b3;
+            --neon-blue: #00e5ff;
+            --light: #f8f9fa;
+            --yellow: #ffde59;
+            --orange: #ff7a00;
+            --pink: #ff5a8c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background-color: var(--dark-blue);
+            color: var(--light);
+            line-height: 1.6;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .universe-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        #galaxy-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .ui-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 42, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(106, 61, 232, 0.3);
+            pointer-events: auto;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+        }
+        
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+        }
+        
+        .navigation {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-button {
+            background: rgba(106, 61, 232, 0.2);
+            border: 1px solid rgba(106, 61, 232, 0.5);
+            color: var(--light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-button:hover {
+            background: rgba(106, 61, 232, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .nav-button-icon {
+            font-size: 1.1rem;
+        }
+        
+        .sidebar {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            width: 300px;
+            background: rgba(10, 10, 42, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(106, 61, 232, 0.3);
+            padding: 20px;
+            pointer-events: auto;
+            z-index: 90;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(-320px);
+            opacity: 0;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(106, 61, 232, 0.3);
+        }
+        
+        .sidebar-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--neon-green);
+        }
+        
+        .close-sidebar {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-sidebar:hover {
+            color: var(--neon-green);
+        }
+        
+        .stats-container {
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: var(--neon-blue);
+        }
+        
+        .filters-container {
+            margin-bottom: 20px;
+        }
+        
+        .filter-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        
+        .filter-select {
+            width: 100%;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(106, 61, 232, 0.3);
+            border-radius: 5px;
+            color: var(--light);
+            font-family: 'Exo 2', sans-serif;
+            margin-bottom: 10px;
+        }
+        
+        .filter-select option {
+            background-color: var(--dark-blue);
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 10px 8px 35px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(106, 61, 232, 0.3);
+            border-radius: 5px;
+            color: var(--light);
+            font-family: 'Exo 2', sans-serif;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+        
+        .apply-filters {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(90deg, var(--bright-purple), var(--deep-purple));
+            border: none;
+            border-radius: 5px;
+            color: var(--light);
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .apply-filters:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 61, 232, 0.4);
+        }
+        
+        .breadcrumbs {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 42, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 20px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+            z-index: 80;
+            border: 1px solid rgba(106, 61, 232, 0.3);
+        }
+        
+        .breadcrumb-item {
+            font-size: 0.9rem;
+            color: var(--light);
+            opacity: 0.8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .breadcrumb-item:hover {
+            opacity: 1;
+            color: var(--neon-green);
+        }
+        
+        .breadcrumb-separator {
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+        
+        .breadcrumb-icon {
+            margin-right: 5px;
+        }
+        
+        .current-breadcrumb {
+            color: var(--neon-green);
+            opacity: 1;
+            font-weight: 600;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: auto;
+            z-index: 80;
+        }
+        
+        .zoom-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(10, 10, 42, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(106, 61, 232, 0.3);
+            color: var(--light);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .zoom-button:hover {
+            background: rgba(106, 61, 232, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .minimap {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            width: 150px;
+            height: 150px;
+            background: rgba(10, 10, 42, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 10px;
+            border: 1px solid rgba(106, 61, 232, 0.3);
+            overflow: hidden;
+            pointer-events: auto;
+            z-index: 80;
+        }
+        
+        #minimap-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .info-panel {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            width: 350px;
+            background: rgba(10, 10, 42, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(106, 61, 232, 0.3);
+            padding: 20px;
+            pointer-events: auto;
+            z-index: 90;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .info-panel.hidden {
+            transform: translateY(-50%) translateX(370px);
+            opacity: 0;
+        }
+        
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(106, 61, 232, 0.3);
+        }
+        
+        .info-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--neon-green);
+        }
+        
+        .close-info {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-info:hover {
+            color: var(--neon-green);
+        }
+        
+        .info-content {
+            margin-bottom: 20px;
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+        }
+        
+        .info-section-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            color: var(--neon-blue);
+        }
+        
+        .info-text {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .planet-preview {
+            width: 100%;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .planet-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--bright-purple), var(--deep-purple));
+            box-shadow: 0 0 20px rgba(106, 61, 232, 0.5);
+        }
+        
+        .planet-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            border: 1px dashed rgba(66, 245, 179, 0.5);
+            border-radius: 50%;
+            animation: rotate 20s linear infinite;
+        }
+        
+        .planet-moon {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background-color: var(--neon-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+            border-radius: 4px;
+            width: 65%;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .stat-box-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--neon-green);
+            margin-bottom: 5px;
+        }
+        
+        .stat-box-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .action-button-primary {
+            background: linear-gradient(90deg, var(--bright-purple), var(--deep-purple));
+            color: var(--light);
+        }
+        
+        .action-button-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border: 1px solid rgba(106, 61, 232, 0.3);
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(10, 10, 42, 0.9);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 1000;
+            border: 1px solid rgba(106, 61, 232, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .tooltip-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--neon-green);
+        }
+        
+        .tooltip-content {
+            opacity: 0.9;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-blue);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-icon {
+            font-size: 4rem;
+            color: var(--neon-green);
+            animation: pulse 1.5s infinite alternate;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--light);
+            margin-bottom: 30px;
+        }
+        
+        .loading-progress {
+            width: 300px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loading-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        @keyframes rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .info-panel {
+                width: 300px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px;
+            }
+            
+            .logo-text {
+                font-size: 1.2rem;
+            }
+            
+            .navigation {
+                gap: 10px;
+            }
+            
+            .nav-button {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .sidebar {
+                top: 70px;
+                width: 220px;
+            }
+            
+            .info-panel {
+                width: 280px;
+            }
+            
+            .breadcrumbs {
+                top: 70px;
+                padding: 6px 12px;
+            }
+            
+            .breadcrumb-item {
+                font-size: 0.8rem;
+            }
+            
+            .minimap {
+                width: 120px;
+                height: 120px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                left: 0;
+                top: auto;
+                bottom: 0;
+                border-radius: 10px 10px 0 0;
+                transform: translateY(100%);
+            }
+            
+            .sidebar.hidden {
+                transform: translateY(100%);
+            }
+            
+            .sidebar.visible {
+                transform: translateY(0);
+            }
+            
+            .info-panel {
+                width: 100%;
+                right: 0;
+                top: auto;
+                bottom: 0;
+                transform: translateY(0);
+                border-radius: 10px 10px 0 0;
+                max-height: 60vh;
+            }
+            
+            .info-panel.hidden {
+                transform: translateY(100%);
+            }
+            
+            .info-panel.visible {
+                transform: translateY(0);
+            }
+            
+            .breadcrumbs {
+                width: 90%;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 12px;
+            }
+            
+            .zoom-controls {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .minimap {
+                bottom: 20px;
+                left: 20px;
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-icon">🧬</div>
+        <div class="loading-text">Carregant Galàxia...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill" id="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- Main Universe Container -->
+    <div class="universe-container">
+        <!-- Galaxy Canvas -->
+        <canvas id="galaxy-canvas"></canvas>
+        
+        <!-- UI Elements -->
+        <div class="ui-container">
+            <!-- Header -->
+            <header class="header">
+                <a href="#" class="logo">
+                    <span class="logo-icon">🧬</span>
+                    <span class="logo-text">MISSIÓ MARGULIS</span>
+                </a>
+                
+                <div class="navigation">
+                    <button class="nav-button" id="toggle-sidebar">
+                        <span class="nav-button-icon">🔍</span>
+                        <span>Filtres</span>
+                    </button>
+                    <button class="nav-button">
+                        <span class="nav-button-icon">📊</span>
+                        <span>Estadístiques</span>
+                    </button>
+                    <button class="nav-button">
+                        <span class="nav-button-icon">❓</span>
+                        <span>Ajuda</span>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Sidebar -->
+            <div class="sidebar hidden" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">Exploració Galàctica</div>
+                    <button class="close-sidebar" id="close-sidebar">×</button>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-label">Escoles participants:</div>
+                        <div class="stat-value">42</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Classes actives:</div>
+                        <div class="stat-value">156</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Organismes creats:</div>
+                        <div class="stat-value">1,248</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Missions completades:</div>
+                        <div class="stat-value">389</div>
+                    </div>
+                </div>
+                
+                <div class="filters-container">
+                    <div class="filter-title">Filtres</div>
+                    
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Cerca escoles o classes...">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <select class="filter-select">
+                            <option value="">Regió geogràfica</option>
+                            <option value="barcelona">Barcelona</option>
+                            <option value="girona">Girona</option>
+                            <option value="lleida">Lleida</option>
+                            <option value="tarragona">Tarragona</option>
+                        </select>
+                        
+                        <select class="filter-select">
+                            <option value="">Tipus d'escola</option>
+                            <option value="public">Pública</option>
+                            <option value="private">Privada</option>
+                            <option value="concerted">Concertada</option>
+                        </select>
+                        
+                        <select class="filter-select">
+                            <option value="">Nivell educatiu</option>
+                            <option value="eso1">1r ESO</option>
+                            <option value="eso2">2n ESO</option>
+                            <option value="eso3">3r ESO</option>
+                            <option value="eso4">4t ESO</option>
+                            <option value="batx1">1r Batxillerat</option>
+                            <option value="batx2">2n Batxillerat</option>
+                        </select>
+                    </div>
+                    
+                    <button class="apply-filters">Aplicar filtres</button>
+                </div>
+            </div>
+            
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs">
+                <div class="breadcrumb-item" id="breadcrumb-galaxy">
+                    <span class="breadcrumb-icon">🌌</span>
+                    <span>Galàxia</span>
+                </div>
+                <span class="breadcrumb-separator">›</span>
+                <div class="breadcrumb-item hidden" id="breadcrumb-system">
+                    <span class="breadcrumb-icon">☀️</span>
+                    <span id="system-name">Sistema</span>
+                </div>
+                <span class="breadcrumb-separator hidden" id="breadcrumb-separator-planet">›</span>
+                <div class="breadcrumb-item hidden" id="breadcrumb-planet">
+                    <span class="breadcrumb-icon">🪐</span>
+                    <span id="planet-name">Planeta</span>
+                </div>
+                <span class="breadcrumb-separator hidden" id="breadcrumb-separator-continent">›</span>
+                <div class="breadcrumb-item hidden" id="breadcrumb-continent">
+                    <span class="breadcrumb-icon">🗺️</span>
+                    <span id="continent-name">Continent</span>
+                </div>
+            </div>
+            
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <div class="zoom-button" id="zoom-in">+</div>
+                <div class="zoom-button" id="zoom-out">-</div>
+            </div>
+            
+            <!-- Minimap -->
+            <div class="minimap">
+                <canvas id="minimap-canvas"></canvas>
+            </div>
+            
+            <!-- Info Panel -->
+            <div class="info-panel hidden" id="info-panel">
+                <div class="info-header">
+                    <div class="info-title" id="info-title">Informació</div>
+                    <button class="close-info" id="close-info">×</button>
+                </div>
+                
+                <div class="info-content" id="info-content">
+                    <!-- Content will be dynamically inserted here -->
+                </div>
+            </div>
+            
+            <!-- Tooltip -->
+            <div class="tooltip" id="tooltip" style="display: none;">
+                <div class="tooltip-title" id="tooltip-title"></div>
+                <div class="tooltip-content" id="tooltip-content"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data for schools and classes
+        const schoolsData = [
+            {
+                id: 1,
+                name: "Institut Galileu",
+                type: "public",
+                region: "barcelona",
+                location: "Barcelona",
+                students: 120,
+                missionsCompleted: 28,
+                organisms: 86,
+                description: "Centre especialitzat en ciències i tecnologia amb un fort enfocament en projectes interdisciplinaris.",
+                position: { x: 0.3, y: 0.4 },
+                color: "#6a3de8",
+                size: 1.2,
+                classes: [
+                    {
+                        id: 101,
+                        name: "4t ESO A",
+                        teacher: "Maria Garcia",
+                        students: 28,
+                        missionsCompleted: 8,
+                        organisms: 22,
+                        description: "Classe especialitzada en biologia evolutiva",
+                        position: { distance: 0.7, angle: 0 },
+                        color: "#42f5b3"
+                    },
+                    {
+                        id: 102,
+                        name: "4t ESO B",
+                        teacher: "Joan Martí",
+                        students: 26,
+                        missionsCompleted: 7,
+                        organisms: 20,
+                        description: "Classe amb projecte d'ecologia marina",
+                        position: { distance: 1, angle: Math.PI / 2 },
+                        color: "#00e5ff"
+                    },
+                    {
+                        id: 103,
+                        name: "1r Batx A",
+                        teacher: "Laura Vidal",
+                        students: 24,
+                        missionsCompleted: 6,
+                        organisms: 18,
+                        description: "Classe de ciències experimentals",
+                        position: { distance: 1.3, angle: Math.PI },
+                        color: "#ffde59"
+                    },
+                    {
+                        id: 104,
+                        name: "1r Batx B",
+                        teacher: "Pau Ferrer",
+                        students: 22,
+                        missionsCompleted: 7,
+                        organisms: 26,
+                        description: "Classe amb projecte de microbiologia",
+                        position: { distance: 1.6, angle: 3 * Math.PI / 2 },
+                        color: "#ff7a00"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: "Escola Margulis",
+                type: "concerted",
+                region: "girona",
+                location: "Girona",
+                students: 95,
+                missionsCompleted: 22,
+                organisms: 64,
+                description: "Centre educatiu amb metodologies innovadores i projectes de ciència ciutadana.",
+                position: { x: 0.7, y: 0.6 },
+                color: "#ff5a8c",
+                size: 1,
+                classes: [
+                    {
+                        id: 201,
+                        name: "3r ESO A",
+                        teacher: "Carla Puig",
+                        students: 24,
+                        missionsCompleted: 6,
+                        organisms: 18,
+                        description: "Classe amb projecte d'ecosistemes terrestres",
+                        position: { distance: 0.8, angle: Math.PI / 4 },
+                        color: "#42f5b3"
+                    },
+                    {
+                        id: 202,
+                        name: "3r ESO B",
+                        teacher: "Miquel Soler",
+                        students: 25,
+                        missionsCompleted: 5,
+                        organisms: 15,
+                        description: "Classe especialitzada en genètica",
+                        position: { distance: 1.1, angle: 3 * Math.PI / 4 },
+                        color: "#00e5ff"
+                    },
+                    {
+                        id: 203,
+                        name: "4t ESO A",
+                        teacher: "Anna Costa",
+                        students: 22,
+                        missionsCompleted: 6,
+                        organisms: 16,
+                        description: "Classe amb projecte de biodiversitat",
+                        position: { distance: 1.4, angle: 5 * Math.PI / 4 },
+                        color: "#ffde59"
+                    },
+                    {
+                        id: 204,
+                        name: "4t ESO B",
+                        teacher: "Jordi Pons",
+                        students: 24,
+                        missionsCompleted: 5,
+                        organisms: 15,
+                        description: "Classe amb projecte d'evolució",
+                        position: { distance: 1.7, angle: 7 * Math.PI / 4 },
+                        color: "#ff7a00"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                name: "Col·legi Darwin",
+                type: "private",
+                region: "tarragona",
+                location: "Tarragona",
+                students: 80,
+                missionsCompleted: 18,
+                organisms: 52,
+                description: "Centre amb un fort enfocament en ciències naturals i projectes de camp.",
+                position: { x: 0.2, y: 0.7 },
+                color: "#00e5ff",
+                size: 0.9,
+                classes: [
+                    {
+                        id: 301,
+                        name: "4t ESO A",
+                        teacher: "Elena Roig",
+                        students: 20,
+                        missionsCompleted: 5,
+                        organisms: 14,
+                        description: "Classe amb projecte de biologia marina",
+                        position: { distance: 0.7, angle: Math.PI / 6 },
+                        color: "#42f5b3"
+                    },
+                    {
+                        id: 302,
+                        name: "4t ESO B",
+                        teacher: "Marc Valls",
+                        students: 18,
+                        missionsCompleted: 4,
+                        organisms: 12,
+                        description: "Classe especialitzada en botànica",
+                        position: { distance: 1, angle: 5 * Math.PI / 6 },
+                        color: "#00e5ff"
+                    },
+                    {
+                        id: 303,
+                        name: "1r Batx A",
+                        teacher: "Núria Camps",
+                        students: 22,
+                        missionsCompleted: 5,
+                        organisms: 14,
+                        description: "Classe amb projecte de zoologia",
+                        position: { distance: 1.3, angle: 3 * Math.PI / 2 },
+                        color: "#ffde59"
+                    },
+                    {
+                        id: 304,
+                        name: "2n Batx A",
+                        teacher: "David Mas",
+                        students: 20,
+                        missionsCompleted: 4,
+                        organisms: 12,
+                        description: "Classe especialitzada en ecologia",
+                        position: { distance: 1.6, angle: 11 * Math.PI / 6 },
+                        color: "#ff7a00"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                name: "Institut Mendel",
+                type: "public",
+                region: "lleida",
+                location: "Lleida",
+                students: 110,
+                missionsCompleted: 25,
+                organisms: 72,
+                description: "Centre amb laboratoris avançats i projectes de recerca en genètica i evolució.",
+                position: { x: 0.8, y: 0.2 },
+                color: "#ffde59",
+                size: 1.1,
+                classes: [
+                    {
+                        id: 401,
+                        name: "3r ESO A",
+                        teacher: "Josep Riera",
+                        students: 28,
+                        missionsCompleted: 7,
+                        organisms: 20,
+                        description: "Classe amb projecte de genètica",
+                        position: { distance: 0.8, angle: Math.PI / 3 },
+                        color: "#42f5b3"
+                    },
+                    {
+                        id: 402,
+                        name: "3r ESO B",
+                        teacher: "Marta Pujol",
+                        students: 26,
+                        missionsCompleted: 6,
+                        organisms: 18,
+                        description: "Classe especialitzada en microbiologia",
+                        position: { distance: 1.1, angle: 2 * Math.PI / 3 },
+                        color: "#00e5ff"
+                    },
+                    {
+                        id: 403,
+                        name: "4t ESO A",
+                        teacher: "Sergi Vila",
+                        students: 28,
+                        missionsCompleted: 6,
+                        organisms: 18,
+                        description: "Classe amb projecte d'evolució",
+                        position: { distance: 1.4, angle: Math.PI },
+                        color: "#ffde59"
+                    },
+                    {
+                        id: 404,
+                        name: "4t ESO B",
+                        teacher: "Clara Font",
+                        students: 28,
+                        missionsCompleted: 6,
+                        organisms: 16,
+                        description: "Classe amb projecte de biodiversitat",
+                        position: { distance: 1.7, angle: 4 * Math.PI / 3 },
+                        color: "#ff7a00"
+                    }
+                ]
+            }
+        ];
+        
+        // Global variables
+        let canvas, ctx;
+        let minimapCanvas, minimapCtx;
+        let width, height;
+        let currentView = 'galaxy'; // galaxy, system, planet, continent
+        let currentSchool = null;
+        let currentClass = null;
+        let currentContinent = null;
+        let zoomLevel = 1;
+        let targetZoomLevel = 1;
+        let panOffset = { x: 0, y: 0 };
+        let targetPanOffset = { x: 0, y: 0 };
+        let isDragging = false;
+        let lastMousePos = { x: 0, y: 0 };
+        let stars = [];
+        let tooltip = document.getElementById('tooltip');
+        let tooltipTitle = document.getElementById('tooltip-title');
+        let tooltipContent = document.getElementById('tooltip-content');
+        let animationFrameId;
+        
+        // Initialize the application
+        window.addEventListener('load', () => {
+            initializeLoading();
+            setTimeout(() => {
+                initialize();
+                hideLoading();
+            }, 2000);
+        });
+        
+        // Initialize loading screen
+        function initializeLoading() {
+            const progressFill = document.getElementById('loading-progress-fill');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += 5;
+                progressFill.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+        
+        // Hide loading screen
+        function hideLoading() {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }
+        
+        // Initialize the application
+        function initialize() {
+            // Set up canvas
+            canvas = document.getElementById('galaxy-canvas');
+            ctx = canvas.getContext('2d');
+            
+            minimapCanvas = document.getElementById('minimap-canvas');
+            minimapCtx = minimapCanvas.getContext('2d');
+            
+            // Set canvas size
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Generate stars
+            generateStars();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Start animation loop
+            animate();
+        }
+        
+        // Resize canvas to fit window
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            minimapCanvas.width = 150;
+            minimapCanvas.height = 150;
+            
+            // Redraw everything
+            draw();
+        }
+        
+        // Generate stars for background
+        function generateStars() {
+            stars = [];
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random(),
+                    y: Math.random(),
+                    size: Math.random() * 2 + 1,
+                    opacity: Math.random() * 0.5 + 0.3,
+                    twinkleSpeed: Math.random() * 0.02 + 0.01,
+                    twinkleOffset: Math.random() * Math.PI * 2
+                });
+            }
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Toggle sidebar
+            document.getElementById('toggle-sidebar').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('hidden');
+            });
+            
+            // Close sidebar
+            document.getElementById('close-sidebar').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.add('hidden');
+            });
+            
+            // Close info panel
+            document.getElementById('close-info').addEventListener('click', () => {
+                document.getElementById('info-panel').classList.add('hidden');
+            });
+            
+            // Zoom controls
+            document.getElementById('zoom-in').addEventListener('click', () => {
+                targetZoomLevel = Math.min(zoomLevel * 1.5, 5);
+            });
+            
+            document.getElementById('zoom-out').addEventListener('click', () => {
+                targetZoomLevel = Math.max(zoomLevel / 1.5, 1);
+                
+                // If zooming out from a detailed view, go back to previous view
+                if (currentView === 'continent' && targetZoomLevel < 3) {
+                    navigateToView('planet');
+                } else if (currentView === 'planet' && targetZoomLevel < 2) {
+                    navigateToView('system');
+                } else if (currentView === 'system' && targetZoomLevel < 1.5) {
+                    navigateToView('galaxy');
+                }
+            });
+            
+            // Mouse wheel zoom
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomIntensity = 0.1;
+                const zoom = e.deltaY < 0 ? 1 + zoomIntensity : 1 - zoomIntensity;
+                targetZoomLevel = Math.min(Math.max(zoomLevel * zoom, 1), 5);
+                
+                // If zooming out from a detailed view, go back to previous view
+                if (currentView === 'continent' && targetZoomLevel < 3) {
+                    navigateToView('planet');
+                } else if (currentView === 'planet' && targetZoomLevel < 2) {
+                    navigateToView('system');
+                } else if (currentView === 'system' && targetZoomLevel < 1.5) {
+                    navigateToView('galaxy');
+                }
+            });
+            
+            // Mouse drag to pan
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastMousePos = { x: e.clientX, y: e.clientY };
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const dx = e.clientX - lastMousePos.x;
+                    const dy = e.clientY - lastMousePos.y;
+                    
+                    targetPanOffset.x += dx / zoomLevel;
+                    targetPanOffset.y += dy / zoomLevel;
+                    
+                    lastMousePos = { x: e.clientX, y: e.clientY };
+                }
+                
+                // Update tooltip position
+                updateTooltipPosition(e);
+            });
+            
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            // Click on canvas to interact with elements
+            canvas.addEventListener('click', handleCanvasClick);
+            
+            // Breadcrumb navigation
+            document.getElementById('breadcrumb-galaxy').addEventListener('click', () => {
+                navigateToView('galaxy');
+            });
+            
+            document.getElementById('breadcrumb-system').addEventListener('click', () => {
+                navigateToView('system');
+            });
+            
+            document.getElementById('breadcrumb-planet').addEventListener('click', () => {
+                navigateToView('planet');
+            });
+        }
+        
+        // Handle clicks on the canvas
+        function handleCanvasClick(e) {
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            
+            if (currentView === 'galaxy') {
+                // Check if a school (star system) was clicked
+                for (const school of schoolsData) {
+                    const screenX = width * school.position.x * zoomLevel + panOffset.x;
+                    const screenY = height * school.position.y * zoomLevel + panOffset.y;
+                    const radius = 20 * school.size * zoomLevel;
+                    
+                    const distance = Math.sqrt(Math.pow(mouseX - screenX, 2) + Math.pow(mouseY - screenY, 2));
+                    
+                    if (distance < radius) {
+                        currentSchool = school;
+                        navigateToView('system');
+                        return;
+                    }
+                }
+            } else if (currentView === 'system') {
+                // Check if a class (planet) was clicked
+                const centerX = width / 2;
+                const centerY = height / 2;
+                
+                for (const classData of currentSchool.classes) {
+                    const angle = classData.position.angle;
+                    const distance = classData.position.distance * 150 * zoomLevel;
+                    
+                    const planetX = centerX + Math.cos(angle) * distance;
+                    const planetY = centerY + Math.sin(angle) * distance;
+                    const radius = 20 * zoomLevel;
+                    
+                    const clickDistance = Math.sqrt(Math.pow(mouseX - planetX, 2) + Math.pow(mouseY - planetY, 2));
+                    
+                    if (clickDistance < radius) {
+                        currentClass = classData;
+                        navigateToView('planet');
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // Navigate to a specific view
+        function navigateToView(view) {
+            currentView = view;
+            
+            // Update breadcrumbs
+            updateBreadcrumbs();
+            
+            // Update info panel
+            updateInfoPanel();
+            
+            // Reset zoom and pan for the new view
+            if (view === 'galaxy') {
+                targetZoomLevel = 1;
+                targetPanOffset = { x: 0, y: 0 };
+                currentSchool = null;
+                currentClass = null;
+                currentContinent = null;
+            } else if (view === 'system') {
+                targetZoomLevel = 2;
+                targetPanOffset = { x: 0, y: 0 };
+                currentClass = null;
+                currentContinent = null;
+            } else if (view === 'planet') {
+                targetZoomLevel = 3;
+                targetPanOffset = { x: 0, y: 0 };
+                currentContinent = null;
+            }
+        }
+        
+        // Update breadcrumbs based on current view
+        function updateBreadcrumbs() {
+            const systemBreadcrumb = document.getElementById('breadcrumb-system');
+            const planetBreadcrumb = document.getElementById('breadcrumb-planet');
+            const continentBreadcrumb = document.getElementById('breadcrumb-continent');
+            const separatorPlanet = document.getElementById('breadcrumb-separator-planet');
+            const separatorContinent = document.getElementById('breadcrumb-separator-continent');
+            
+            // Reset all to default state
+            document.getElementById('breadcrumb-galaxy').classList.remove('current-breadcrumb');
+            systemBreadcrumb.classList.remove('current-breadcrumb', 'hidden');
+            planetBreadcrumb.classList.remove('current-breadcrumb', 'hidden');
+            continentBreadcrumb.classList.remove('current-breadcrumb', 'hidden');
+            separatorPlanet.classList.remove('hidden');
+            separatorContinent.classList.remove('hidden');
+            
+            if (currentView === 'galaxy') {
+                document.getElementById('breadcrumb-galaxy').classList.add('current-breadcrumb');
+                systemBreadcrumb.classList.add('hidden');
+                planetBreadcrumb.classList.add('hidden');
+                continentBreadcrumb.classList.add('hidden');
+                separatorPlanet.classList.add('hidden');
+                separatorContinent.classList.add('hidden');
+            } else if (currentView === 'system') {
+                systemBreadcrumb.classList.add('current-breadcrumb');
+                document.getElementById('system-name').textContent = currentSchool.name;
+                planetBreadcrumb.classList.add('hidden');
+                continentBreadcrumb.classList.add('hidden');
+                separatorPlanet.classList.add('hidden');
+                separatorContinent.classList.add('hidden');
+            } else if (currentView === 'planet') {
+                planetBreadcrumb.classList.add('current-breadcrumb');
+                document.getElementById('planet-name').textContent = currentClass.name;
+                continentBreadcrumb.classList.add('hidden');
+                separatorContinent.classList.add('hidden');
+            } else if (currentView === 'continent') {
+                continentBreadcrumb.classList.add('current-breadcrumb');
+                document.getElementById('continent-name').textContent = currentContinent.name;
+            }
+        }
+        
+        // Update info panel based on current view
+        function updateInfoPanel() {
+            const infoPanel = document.getElementById('info-panel');
+            const infoTitle = document.getElementById('info-title');
+            const infoContent = document.getElementById('info-content');
+            
+            if (currentView === 'galaxy') {
+                infoPanel.classList.add('hidden');
+                return;
+            }
+            
+            infoPanel.classList.remove('hidden');
+            
+            if (currentView === 'system') {
+                infoTitle.textContent = currentSchool.name;
+                
+                infoContent.innerHTML = `
+                    <div class="info-section">
+                        <p class="info-text">${currentSchool.description}</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-section-title">Informació general</div>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-box-value">${currentSchool.students}</div>
+                                <div class="stat-box-label">Estudiants</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value">${currentSchool.classes.length}</div>
+                                <div class="stat-box-label">Classes</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value">${currentSchool.organisms}</div>
+                                <div class="stat-box-label">Organismes</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value">${currentSchool.missionsCompleted}</div>
+                                <div class="stat-box-label">Missions</div>
+                            </div>
+                        </div>
+                        <p class="info-text">Ubicació: ${currentSchool.location}</p>
+                        <p class="info-text">Tipus: ${getSchoolTypeText(currentSchool.type)}</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-section-title">Progrés</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                        <p class="info-text">Aquest centre ha completat el 65% de les missions disponibles.</p>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-button action-button-primary">
+                            <span>Veure detalls</span>
+                        </button>
+                        <button class="action-button action-button-secondary">
+                            <span>Contactar</span>
+                        </button>
+                    </div>
+                `;
+            } else if (currentView === 'planet') {
+                infoTitle.textContent = currentClass.name;
+                
+                infoContent.innerHTML = `
+                    <div class="planet-preview">
+                        <div class="planet-orbit">
+                            <div class="planet-moon"></div>
+                        </div>
+                        <div class="planet-image" style="background: radial-gradient(circle at 30% 30%, ${currentClass.color}, var(--deep-purple))"></div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <p class="info-text">${currentClass.description}</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-section-title">Informació general</div>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-box-value">${currentClass.students}</div>
+                                <div class="stat-box-label">Estudiants</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value">${currentClass.organisms}</div>
+                                <div class="stat-box-label">Organismes</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value">${currentClass.missionsCompleted}</div>
+                                <div class="stat-box-label">Missions</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-value">4</div>
+                                <div class="stat-box-label">Grups</div>
+                            </div>
+                        </div>
+                        <p class="info-text">Professor/a: ${currentClass.teacher}</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-section-title">Progrés</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 70%"></div>
+                        </div>
+                        <p class="info-text">Aquesta classe ha completat el 70% de les missions assignades.</p>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-button action-button-primary">
+                            <span>Explorar continent</span>
+                        </button>
+                        <button class="action-button action-button-secondary">
+                            <span>Veure organismes</span>
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Get text representation of school type
+        function getSchoolTypeText(type) {
+            switch (type) {
+                case 'public': return 'Pública';
+                case 'private': return 'Privada';
+                case 'concerted': return 'Concertada';
+                default: return type;
+            }
+        }
+        
+        // Update tooltip position
+        function updateTooltipPosition(e) {
+            tooltip.style.left = `${e.clientX + 15}px`;
+            tooltip.style.top = `${e.clientY + 15}px`;
+        }
+        
+        // Show tooltip with content
+        function showTooltip(title, content) {
+            tooltipTitle.textContent = title;
+            tooltipContent.textContent = content;
+            tooltip.style.display = 'block';
+            tooltip.style.opacity = '1';
+        }
+        
+        // Hide tooltip
+        function hideTooltip() {
+            tooltip.style.opacity = '0';
+            setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 300);
+        }
+        
+        // Animation loop
+        function animate() {
+            // Smooth zoom and pan
+            zoomLevel += (targetZoomLevel - zoomLevel) * 0.1;
+            panOffset.x += (targetPanOffset.x - panOffset.x) * 0.1;
+            panOffset.y += (targetPanOffset.y - panOffset.y) * 0.1;
+            
+            // Draw everything
+            draw();
+            
+            // Request next frame
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        
+        // Draw everything
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            minimapCtx.clearRect(0, 0, 150, 150);
+            
+            // Draw background
+            drawBackground();
+            
+            // Draw content based on current view
+            if (currentView === 'galaxy') {
+                drawGalaxy();
+            } else if (currentView === 'system') {
+                drawSystem();
+            } else if (currentView === 'planet') {
+                drawPlanet();
+            } else if (currentView === 'continent') {
+                drawContinent();
+            }
+            
+            // Draw minimap
+            drawMinimap();
+        }
+        
+        // Draw background with stars
+        function drawBackground() {
+            // Fill background
+            ctx.fillStyle = '#0a0a2a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw stars
+            const time = Date.now() * 0.001;
+            
+            for (const star of stars) {
+                const twinkle = 0.5 + 0.5 * Math.sin(time * star.twinkleSpeed + star.twinkleOffset);
+                const opacity = star.opacity * (0.5 + 0.5 * twinkle);
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                
+                const x = width * star.x * zoomLevel + panOffset.x;
+                const y = height * star.y * zoomLevel + panOffset.y;
+                const size = star.size * (0.8 + 0.2 * twinkle) * (currentView === 'galaxy' ? 1 : 0.5);
+                
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw nebula effects for galaxy view
+            if (currentView === 'galaxy') {
+                const gradient1 = ctx.createRadialGradient(
+                    width * 0.3 * zoomLevel + panOffset.x, height * 0.4 * zoomLevel + panOffset.y, 0,
+                    width * 0.3 * zoomLevel + panOffset.x, height * 0.4 * zoomLevel + panOffset.y, width * 0.4 * zoomLevel
+                );
+                gradient1.addColorStop(0, 'rgba(106, 61, 232, 0.1)');
+                gradient1.addColorStop(1, 'rgba(106, 61, 232, 0)');
+                
+                ctx.fillStyle = gradient1;
+                ctx.fillRect(0, 0, width, height);
+                
+                const gradient2 = ctx.createRadialGradient(
+                    width * 0.7 * zoomLevel + panOffset.x, height * 0.6 * zoomLevel + panOffset.y, 0,
+                    width * 0.7 * zoomLevel + panOffset.x, height * 0.6 * zoomLevel + panOffset.y, width * 0.3 * zoomLevel
+                );
+                gradient2.addColorStop(0, 'rgba(66, 245, 179, 0.1)');
+                gradient2.addColorStop(1, 'rgba(66, 245, 179, 0)');
+                
+                ctx.fillStyle = gradient2;
+                ctx.fillRect(0, 0, width, height);
+            }
+        }
+        
+        // Draw galaxy view with school systems
+        function drawGalaxy() {
+            // Draw school systems
+            for (const school of schoolsData) {
+                const x = width * school.position.x * zoomLevel + panOffset.x;
+                const y = height * school.position.y * zoomLevel + panOffset.y;
+                const baseSize = 20 * school.size;
+                const size = baseSize * zoomLevel;
+                
+                // Check if school is in view
+                if (x + size < 0 || x - size > width || y + size < 0 || y - size > height) {
+                    continue;
+                }
+                
+                // Draw glow
+                const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2);
+                gradient.addColorStop(0, `${school.color}40`);
+                gradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(x, y, size * 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw star
+                ctx.fillStyle = school.color;
+                ctx.beginPath();
+                ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw star rays
+                const time = Date.now() * 0.001;
+                const rayCount = 6;
+                const rayLength = size * (0.8 + 0.2 * Math.sin(time));
+                
+                ctx.strokeStyle = school.color;
+                ctx.lineWidth = 2 * zoomLevel;
+                
+                for (let i = 0; i < rayCount; i++) {
+                    const angle = (i / rayCount) * Math.PI * 2 + time * 0.2;
+                    const rayX = Math.cos(angle) * rayLength;
+                    const rayY = Math.sin(angle) * rayLength;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x + rayX * 0.3, y + rayY * 0.3);
+                    ctx.lineTo(x + rayX, y + rayY);
+                    ctx.stroke();
+                }
+                
+                // Draw school name
+                ctx.fillStyle = '#f8f9fa';
+                ctx.font = `${12 * zoomLevel}px 'Exo 2', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(school.name, x, y + size + 10 * zoomLevel);
+                
+                // Check for mouse hover
+                const mouseX = lastMousePos.x;
+                const mouseY = lastMousePos.y;
+                const distance = Math.sqrt(Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2));
+                
+                if (distance < size) {
+                    showTooltip(school.name, `${getSchoolTypeText(school.type)} - ${school.location}\n${school.classes.length} classes, ${school.students} estudiants`);
+                } else {
+                    hideTooltip();
+                }
+            }
+        }
+        
+        // Draw system view with planets (classes)
+        function drawSystem() {
+            if (!currentSchool) return;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Draw sun (school)
+            const sunRadius = 50 * zoomLevel;
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, sunRadius * 2);
+            gradient.addColorStop(0, `${currentSchool.color}`);
+            gradient.addColorStop(0.5, `${currentSchool.color}80`);
+            gradient.addColorStop(1, 'transparent');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, sunRadius * 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = currentSchool.color;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, sunRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw sun rays
+            const time = Date.now() * 0.001;
+            const rayCount = 8;
+            const rayLength = sunRadius * 1.5 * (0.8 + 0.2 * Math.sin(time * 0.5));
+            
+            ctx.strokeStyle = currentSchool.color;
+            ctx.lineWidth = 3 * zoomLevel;
+            
+            for (let i = 0; i < rayCount; i++) {
+                const angle = (i / rayCount) * Math.PI * 2 + time * 0.1;
+                const rayX = Math.cos(angle) * rayLength;
+                const rayY = Math.sin(angle) * rayLength;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX + rayX * 0.7, centerY + rayY * 0.7);
+                ctx.lineTo(centerX + rayX, centerY + rayY);
+                ctx.stroke();
+            }
+            
+            // Draw orbits and planets
+            for (const classData of currentSchool.classes) {
+                const orbitRadius = classData.position.distance * 150 * zoomLevel;
+                
+                // Draw orbit
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 1 * zoomLevel;
+                ctx.setLineDash([5 * zoomLevel, 5 * zoomLevel]);
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, orbitRadius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw planet
+                const angle = classData.position.angle + time * 0.2 / classData.position.distance;
+                const planetX = centerX + Math.cos(angle) * orbitRadius;
+                const planetY = centerY + Math.sin(angle) * orbitRadius;
+                const planetRadius = 20 * zoomLevel;
+                
+                const planetGradient = ctx.createRadialGradient(planetX, planetY, 0, planetX, planetY, planetRadius);
+                planetGradient.addColorStop(0, classData.color);
+                planetGradient.addColorStop(1, 'rgba(58, 16, 120, 1)');
+                
+                ctx.fillStyle = planetGradient;
+                ctx.beginPath();
+                ctx.arc(planetX, planetY, planetRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw planet glow
+                const glowGradient = ctx.createRadialGradient(planetX, planetY, planetRadius, planetX, planetY, planetRadius * 1.5);
+                glowGradient.addColorStop(0, `${classData.color}40`);
+                glowGradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = glowGradient;
+                ctx.beginPath();
+                ctx.arc(planetX, planetY, planetRadius * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw planet name
+                ctx.fillStyle = '#f8f9fa';
+                ctx.font = `${14 * zoomLevel}px 'Exo 2', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(classData.name, planetX, planetY + planetRadius + 10 * zoomLevel);
+                
+                // Check for mouse hover
+                const mouseX = lastMousePos.x;
+                const mouseY = lastMousePos.y;
+                const distance = Math.sqrt(Math.pow(mouseX - planetX, 2) + Math.pow(mouseY - planetY, 2));
+                
+                if (distance < planetRadius) {
+                    showTooltip(classData.name, `Professor/a: ${classData.teacher}\n${classData.students} estudiants, ${classData.organisms} organismes`);
+                } else {
+                    hideTooltip();
+                }
+            }
+            
+            // Draw school name
+            ctx.fillStyle = '#f8f9fa';
+            ctx.font = `${24 * zoomLevel}px 'Orbitron', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(currentSchool.name, centerX, centerY - sunRadius - 40 * zoomLevel);
+        }
+        
+        // Draw planet view
+        function drawPlanet() {
+            if (!currentClass) return;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Draw planet
+            const planetRadius = 200 * zoomLevel;
+            
+            // Draw planet glow
+            const glowGradient = ctx.createRadialGradient(centerX, centerY, planetRadius, centerX, centerY, planetRadius * 1.5);
+            glowGradient.addColorStop(0, `${currentClass.color}40`);
+            glowGradient.addColorStop(1, 'transparent');
+            
+            ctx.fillStyle = glowGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, planetRadius * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw planet body
+            const planetGradient = ctx.createRadialGradient(centerX - planetRadius * 0.2, centerY - planetRadius * 0.2, 0, centerX, centerY, planetRadius);
+            planetGradient.addColorStop(0, currentClass.color);
+            planetGradient.addColorStop(0.7, 'rgba(58, 16, 120, 1)');
+            
+            ctx.fillStyle = planetGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, planetRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw continents
+            const time = Date.now() * 0.0005;
+            const continentCount = 4; // 4 groups per class
+            
+            for (let i = 0; i < continentCount; i++) {
+                const angle = (i / continentCount) * Math.PI * 2 + time;
+                const distanceFromCenter = planetRadius * 0.6;
+                const x = centerX + Math.cos(angle) * distanceFromCenter;
+                const y = centerY + Math.sin(angle) * distanceFromCenter;
+                const size = planetRadius * 0.3;
+                
+                // Generate a random continent shape
+                ctx.fillStyle = `rgba(${Math.floor(Math.random() * 100 + 155)}, ${Math.floor(Math.random() * 100 + 155)}, ${Math.floor(Math.random() * 100 + 155)}, 0.7)`;
+                ctx.beginPath();
+                
+                const points = 8;
+                for (let j = 0; j < points; j++) {
+                    const pointAngle = (j / points) * Math.PI * 2;
+                    const pointRadius = size * (0.7 + Math.random() * 0.3);
+                    const pointX = x + Math.cos(pointAngle) * pointRadius;
+                    const pointY = y + Math.sin(pointAngle) * pointRadius;
+                    
+                    if (j === 0) {
+                        ctx.moveTo(pointX, pointY);
+                    } else {
+                        ctx.lineTo(pointX, pointY);
+                    }
+                }
+                
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Draw atmosphere
+            ctx.strokeStyle = `${currentClass.color}80`;
+            ctx.lineWidth = 5 * zoomLevel;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, planetRadius * 1.1, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Draw class name
+            ctx.fillStyle = '#f8f9fa';
+            ctx.font = `${30 * zoomLevel}px 'Orbitron', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(currentClass.name, centerX, centerY - planetRadius - 60 * zoomLevel);
+            
+            ctx.font = `${18 * zoomLevel}px 'Exo 2', sans-serif`;
+            ctx.fillText(`Professor/a: ${currentClass.teacher}`, centerX, centerY - planetRadius - 20 * zoomLevel);
+        }
+        
+        /**
+     * Draws the detailed continent view on the main canvas.
+     * This function is responsible for rendering the continent's terrain, water bodies,
+     * mountains, settlements, and text labels based on the current zoom level and selected continent/class.
+     */
+    function drawContinent() {
+        // Ensure a current class and continent are selected before drawing
+        if (!currentClass || !currentContinent) return;
+
+        const centerX = width / 2; // Center X coordinate of the canvas
+        const centerY = height / 2; // Center Y coordinate of the canvas
+
+        // --- Draw Continent Background ---
+        const continentRadius = 300 * zoomLevel; // Radius of the main continent shape, scaled by zoom
+
+        // Create a radial gradient for the terrain, blending colors from the current continent and class
+        const terrainGradient = ctx.createRadialGradient(
+            centerX, centerY, 0,
+            centerX, centerY, continentRadius
+        );
+        terrainGradient.addColorStop(0, `${currentContinent.color || '#42f5b3'}`); // Inner color (continent's primary color)
+        terrainGradient.addColorStop(0.7, `${currentClass.color}`); // Middle color (class's primary color)
+        terrainGradient.addColorStop(1, 'rgba(58, 16, 120, 0.8)'); // Outer color (darker, blending into space)
+
+        // Draw the main irregular continent shape
+        ctx.fillStyle = terrainGradient;
+        ctx.beginPath();
+
+        const points = 12; // Number of points to define the continent's perimeter
+        const irregularity = 0.4; // Controls how irregular the continent's shape is
+
+        // Generate irregular points for the continent outline
+        for (let i = 0; i < points; i++) {
+            const angle = (i / points) * Math.PI * 2; // Angle for the current point
+            // Calculate a random radius to create irregularity
+            const radius = continentRadius * (1 - irregularity + Math.random() * irregularity);
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+
+            if (i === 0) {
+                ctx.moveTo(x, y); // Start path at the first point
+            } else {
+                // Use quadratic bezier curves for smoother edges between points
+                // This creates a more organic, less jagged continent shape
+                const prevAngle = ((i - 1) / points) * Math.PI * 2;
+                const prevRadius = continentRadius * (1 - irregularity + Math.random() * irregularity);
+                const prevX = centerX + Math.cos(prevAngle) * prevRadius;
+                const prevY = centerY + Math.sin(prevAngle) * prevRadius;
+
+                // Control points for the bezier curve, adding a slight curve based on the segment
+                const cp1x = prevX + (x - prevX) * 0.5 - (y - prevY) * 0.2;
+                const cp1y = prevY + (y - prevY) * 0.5 + (x - prevX) * 0.2;
+                ctx.quadraticCurveTo(cp1x, cp1y, x, y);
+            }
+        }
+        ctx.closePath(); // Close the path to form a complete shape
+        ctx.fill(); // Fill the continent shape with the gradient
+
+        // --- Draw Water Features (Lakes, Rivers) ---
+        const waterFeatures = 5; // Number of water bodies to draw
+        ctx.fillStyle = 'rgba(0, 229, 255, 0.6)'; // Blue color for water
+
+        for (let i = 0; i < waterFeatures; i++) {
+            const angle = Math.random() * Math.PI * 2; // Random angle for water feature position
+            const distance = Math.random() * continentRadius * 0.7; // Random distance from center
+            const x = centerX + Math.cos(angle) * distance;
+            const y = centerY + Math.sin(angle) * distance;
+            const size = continentRadius * (0.05 + Math.random() * 0.1); // Random size for the water feature
+
+            ctx.beginPath();
+            const lakePoints = 8; // Number of points to define the lake's irregular shape
+            for (let j = 0; j < lakePoints; j++) {
+                const lakeAngle = (j / lakePoints) * Math.PI * 2;
+                const lakeRadius = size * (0.7 + Math.random() * 0.6); // Random radius for lake irregularity
+                const lakeX = x + Math.cos(lakeAngle) * lakeRadius;
+                const lakeY = y + Math.sin(lakeAngle) * lakeRadius;
+                if (j === 0) {
+                    ctx.moveTo(lakeX, lakeY);
+                } else {
+                    ctx.lineTo(lakeX, lakeY);
+                }
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // --- Draw Mountains ---
+        const mountains = 8; // Number of mountains to draw
+        for (let i = 0; i < mountains; i++) {
+            const angle = Math.random() * Math.PI * 2; // Random angle for mountain position
+            const distance = Math.random() * continentRadius * 0.6; // Random distance from center
+            const x = centerX + Math.cos(angle) * distance;
+            const y = centerY + Math.sin(angle) * distance;
+            const size = continentRadius * (0.05 + Math.random() * 0.08); // Random size for the mountain
+
+            // Mountain gradient for shading
+            const mountainGradient = ctx.createLinearGradient(
+                x - size, y + size,
+                x + size, y - size
+            );
+            mountainGradient.addColorStop(0, 'rgba(100, 100, 100, 0.8)');
+            mountainGradient.addColorStop(1, 'rgba(200, 200, 200, 0.9)');
+            ctx.fillStyle = mountainGradient;
+
+            // Draw mountain as a triangle
+            ctx.beginPath();
+            ctx.moveTo(x - size, y + size * 0.5);
+            ctx.lineTo(x, y - size);
+            ctx.lineTo(x + size, y + size * 0.5);
+            ctx.closePath();
+            ctx.fill();
+
+            // Draw snow cap on top of the mountain
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.beginPath();
+            ctx.moveTo(x - size * 0.3, y - size * 0.3);
+            ctx.lineTo(x, y - size);
+            ctx.lineTo(x + size * 0.3, y - size * 0.3);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // --- Draw Settlements (Organism Locations) ---
+        const settlements = 6; // Number of settlements to draw
+        for (let i = 0; i < settlements; i++) {
+            const angle = Math.random() * Math.PI * 2; // Random angle for settlement position
+            const distance = Math.random() * continentRadius * 0.7; // Random distance from center
+            const x = centerX + Math.cos(angle) * distance;
+            const y = centerY + Math.sin(angle) * distance;
+            const size = continentRadius * 0.03; // Fixed size for settlements
+
+            // Draw settlement circle
+            ctx.fillStyle = 'rgba(255, 122, 0, 0.8)'; // Orange color for settlements
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw pulsing effect around the settlement
+            const time = Date.now() * 0.001;
+            const pulse = Math.sin(time * 2 + i) * 0.5 + 0.5; // Pulsing animation
+            ctx.strokeStyle = 'rgba(255, 122, 0, ' + (0.3 + pulse * 0.4) + ')';
+            ctx.lineWidth = 2 * zoomLevel; // Line width scaled by zoom
+            ctx.beginPath();
+            ctx.arc(x, y, size * (1.5 + pulse * 0.5), 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Draw connecting paths between some settlements (for visual interest)
+            if (i > 0) {
+                const prevAngle = Math.random() * Math.PI * 2;
+                const prevDistance = Math.random() * continentRadius * 0.7;
+                const prevX = centerX + Math.cos(prevAngle) * prevDistance;
+                const prevY = centerY + Math.sin(prevAngle) * prevDistance;
+
+                ctx.strokeStyle = 'rgba(255, 222, 89, 0.6)'; // Yellowish color for paths
+                ctx.lineWidth = 1.5 * zoomLevel; // Line width scaled by zoom
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+
+                // Create a curved path between settlements
+                const controlX = (x + prevX) / 2 + (Math.random() - 0.5) * 50 * zoomLevel;
+                const controlY = (y + prevY) / 2 + (Math.random() - 0.5) * 50 * zoomLevel;
+                ctx.quadraticCurveTo(controlX, controlY, prevX, prevY);
+                ctx.stroke();
+            }
+        }
+
+        // --- Draw Continent Name and Additional Info ---
+        ctx.fillStyle = '#f8f9fa'; // Light color for text
+        ctx.font = `${30 * zoomLevel}px 'Orbitron', sans-serif`; // Font scaled by zoom
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(currentContinent.name || "Continent", centerX, centerY - continentRadius - 60 * zoomLevel);
+
+        ctx.font = `${18 * zoomLevel}px 'Exo 2', sans-serif`; // Smaller font for additional info
+        ctx.fillText(`Grup d'estudiants: ${currentContinent.group || "Grup 1"}`, centerX, centerY - continentRadius - 20 * zoomLevel);
+    }
+
+    /**
+     * Draws the minimap, providing a smaller, contextual view of the current level of zoom.
+     * The minimap content changes based on the 'currentView' (galaxy, system, planet, continent).
+     */
+    function drawMinimap() {
+        // Fill minimap background
+        minimapCtx.fillStyle = 'rgba(10, 10, 42, 0.5)'; // Dark, semi-transparent background
+        minimapCtx.fillRect(0, 0, 150, 150); // Fixed size minimap canvas
+
+        if (currentView === 'galaxy') {
+            // --- Galaxy View Minimap ---
+            // Draw school positions (planets in the galaxy)
+            for (const school of schoolsData) {
+                minimapCtx.fillStyle = school.color;
+                minimapCtx.beginPath();
+                // Scale school positions to fit the minimap
+                minimapCtx.arc(150 * school.position.x, 150 * school.position.y, 4, 0, Math.PI * 2);
+                minimapCtx.fill();
+            }
+            // Draw viewport rectangle to indicate the main canvas's visible area
+            const viewportWidth = 150 / zoomLevel;
+            const viewportHeight = 150 / zoomLevel;
+            // Calculate viewport position relative to the minimap
+            const viewportX = 75 - panOffset.x / width * 150 / zoomLevel;
+            const viewportY = 75 - panOffset.y / height * 150 / zoomLevel;
+            minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            minimapCtx.lineWidth = 1;
+            minimapCtx.strokeRect(viewportX - viewportWidth / 2, viewportY - viewportHeight / 2, viewportWidth, viewportHeight);
+
+        } else if (currentView === 'system') {
+            // --- System View Minimap ---
+            // Draw central star
+            minimapCtx.fillStyle = currentSchool.color;
+            minimapCtx.beginPath();
+            minimapCtx.arc(75, 75, 8, 0, Math.PI * 2);
+            minimapCtx.fill();
+
+            // Draw orbits for planets (classes)
+            for (const classData of currentSchool.classes) {
+                const orbitRadius = classData.position.distance * 30; // Scale orbit distance for minimap
+                minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                minimapCtx.lineWidth = 1;
+                minimapCtx.beginPath();
+                minimapCtx.arc(75, 75, orbitRadius, 0, Math.PI * 2);
+                minimapCtx.stroke();
+            }
+
+            // Draw planets (classes) in their orbital positions
+            const time = Date.now() * 0.0005; // Time for orbital animation
+            for (const classData of currentSchool.classes) {
+                // Calculate planet position based on angle, distance, and time for animation
+                const angle = classData.position.angle + time * 0.2 / classData.position.distance;
+                const distance = classData.position.distance * 30;
+                const x = 75 + Math.cos(angle) * distance;
+                const y = 75 + Math.sin(angle) * distance;
+                minimapCtx.fillStyle = classData.color;
+                minimapCtx.beginPath();
+                minimapCtx.arc(x, y, 4, 0, Math.PI * 2);
+                minimapCtx.fill();
+
+                // Highlight current class if selected
+                if (currentClass && classData.id === currentClass.id) {
+                    minimapCtx.strokeStyle = '#ffffff';
+                    minimapCtx.lineWidth = 1;
+                    minimapCtx.beginPath();
+                    minimapCtx.arc(x, y, 6, 0, Math.PI * 2);
+                    minimapCtx.stroke();
+                }
+            }
+            // Draw viewport indicator (fixed for system view, as the main canvas is centered on a planet)
+            minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            minimapCtx.lineWidth = 1;
+            minimapCtx.strokeRect(25, 25, 100, 100);
+
+        } else if (currentView === 'planet') {
+            // --- Planet View Minimap ---
+            // Draw planet
+            minimapCtx.fillStyle = currentClass.color;
+            minimapCtx.beginPath();
+            minimapCtx.arc(75, 75, 30, 0, Math.PI * 2);
+            minimapCtx.fill();
+
+            // Draw simplified continents on the minimap planet
+            const continentCount = 4;
+            const seed = currentClass.id || 1; // Use class ID as seed for consistent random continent shapes
+            for (let i = 0; i < continentCount; i++) {
+                const angle = (i / continentCount) * Math.PI * 2;
+                const distanceFromCenter = 18; // Distance of continents from planet center on minimap
+                const x = 75 + Math.cos(angle) * distanceFromCenter;
+                const y = 75 + Math.sin(angle) * distanceFromCenter;
+                const size = 10; // Base size of minimap continents
+
+                // Generate a color based on the continent index
+                const hue = (i * 60 + seed * 40) % 360;
+                minimapCtx.fillStyle = `hsla(${hue}, 70%, 60%, 0.7)`;
+                minimapCtx.beginPath();
+                const points = 8;
+                for (let j = 0; j < points; j++) {
+                    const pointAngle = (j / points) * Math.PI * 2;
+                    // Use a deterministic "random" based on indices for consistent shapes
+                    const randomFactor = 0.7 + ((i * points + j + seed) % 10) / 30;
+                    const pointRadius = size * randomFactor;
+                    const pointX = x + Math.cos(pointAngle) * pointRadius;
+                    const pointY = y + Math.sin(pointAngle) * pointRadius;
+                    if (j === 0) {
+                        minimapCtx.moveTo(pointX, pointY);
+                    } else {
+                        minimapCtx.lineTo(pointX, pointY);
+                    }
+                }
+                minimapCtx.closePath();
+                minimapCtx.fill();
+
+                // Highlight current continent if selected
+                if (currentContinent && currentContinent.id === i + 1) {
+                    minimapCtx.strokeStyle = '#ffffff';
+                    minimapCtx.lineWidth = 1;
+                    minimapCtx.stroke();
+                }
+            }
+            // Draw viewport indicator (fixed for planet view, as the main canvas is centered on a continent)
+            minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            minimapCtx.lineWidth = 1;
+            minimapCtx.strokeRect(25, 25, 100, 100);
+
+        } else if (currentView === 'continent') {
+            // --- Continent View Minimap ---
+            // Draw simplified continent outline
+            minimapCtx.fillStyle = currentContinent ? currentContinent.color || '#42f5b3' : '#42f5b3';
+            minimapCtx.beginPath();
+            const points = 12;
+            const centerX = 75;
+            const centerY = 75;
+            const radius = 50;
+            // Seed for deterministic "random" for consistent minimap continent shape
+            const seed = (currentClass ? currentClass.id : 1) + (currentContinent ? currentContinent.id : 0);
+            for (let i = 0; i < points; i++) {
+                const angle = (i / points) * Math.PI * 2;
+                const randomFactor = 0.7 + ((i + seed) % 10) / 30;
+                const pointRadius = radius * randomFactor;
+                const x = centerX + Math.cos(angle) * pointRadius;
+                const y = centerY + Math.sin(angle) * pointRadius;
+                if (i === 0) {
+                    minimapCtx.moveTo(x, y);
+                } else {
+                    minimapCtx.lineTo(x, y);
+                }
+            }
+            minimapCtx.closePath();
+            minimapCtx.fill();
+
+            // Draw simplified settlements on the minimap continent
+            const settlements = 6;
+            for (let i = 0; i < settlements; i++) {
+                const angle = ((i * 137.5) % 360) * Math.PI / 180; // Golden angle for distribution
+                const distance = 15 + (i * 5) % 30; // Distance from center
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                minimapCtx.fillStyle = 'rgba(255, 122, 0, 0.8)';
+                minimapCtx.beginPath();
+                minimapCtx.arc(x, y, 3, 0, Math.PI * 2);
+                minimapCtx.fill();
+            }
+            // Draw viewport indicator (fixed for continent view, as the main canvas is zoomed in)
+            minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            minimapCtx.lineWidth = 1;
+            minimapCtx.strokeRect(25, 25, 100, 100);
+        }
+    }
+    </script>
+</body>
+</html>
